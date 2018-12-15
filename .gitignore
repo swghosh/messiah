@@ -6,3 +6,5 @@ src/backend/__pycache__
 .vscode
 *.env
 src/backend/data/earthquake_model.ckpt.*
+# database credentials
+src/config/databaseConfig.json
