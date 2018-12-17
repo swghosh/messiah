@@ -1,20 +1,24 @@
 import os
 import json
-from mysql.connector import errorcode
 
 DB_CONFIG_PATH = os.path.join(os.path.dirname(__file__), '..', 'config', 'databaseConfig.json')
-print(DB_CONFIG_PATH)
 with open(DB_CONFIG_PATH) as config:
     DB_CREDS = json.loads(
         config.read()
     )['db']
-print(DB_CREDS)
 
 from mysql import connector
 from mysql.connector import Error
+from mysql.connector import errorcode
 
 db = connector.connect(**DB_CREDS)
 
+def auto_reconnect(func):
+    if db.is_connected == False:
+        db = connector.connect(**DB_CREDS)
+    return func
+
+@auto_reconnect
 def signup(name,country,username,password,phone_no):
     try:
         sql_query='INSERT INTO users VALUES ("%s", "%s", "%s", "%s", %d)' % (name, country, username, password, phone_no)
@@ -29,21 +33,18 @@ def signup(name,country,username,password,phone_no):
             print(err)
         return False
 
-
-
-    
+@auto_reconnect 
 def login(username, password):
     sql_query='SELECT Username, Password FROM users where Username = +"' + username + '"'
     cursor=db.cursor()
     cursor.execute(sql_query)
     for (f1,f2) in cursor:
-        print(f1, f2)
         if(f2==password):
             return True
     return False
 
 
-# test only code
+# test only code while execution
 if __name__ == '__main__':
     cursor = db.cursor()
     sql_query = 'SELECT * FROM disasters LIMIT 5'
