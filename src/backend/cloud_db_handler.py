@@ -43,11 +43,3 @@ def login(username, password):
             return True
     return False
 
-
-# test only code while execution
-if __name__ == '__main__':
-    cursor = db.cursor()
-    sql_query = 'SELECT * FROM disasters LIMIT 5'
-    cursor.execute(sql_query)
-    for row in cursor:
-        print(row)
