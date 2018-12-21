@@ -17,6 +17,7 @@ future = "*"
 flask = "*"
 flask-cors = "*"
 mysql-connector-python = "*"
+pyjwt = "*"
 
 [requires]
 python_version = "3.6"

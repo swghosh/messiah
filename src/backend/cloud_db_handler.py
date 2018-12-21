@@ -14,6 +14,7 @@ from mysql.connector import errorcode
 db = connector.connect(**DB_CREDS)
 
 def auto_reconnect(func):
+    global db
     if db.is_connected == False:
         db = connector.connect(**DB_CREDS)
     return func
@@ -21,8 +22,10 @@ def auto_reconnect(func):
 @auto_reconnect
 def signup(name,country,username,password,phone_no):
     try:
-        sql_query='INSERT INTO users VALUES ("%s", "%s", "%s", "%s", %d)' % (name, country, username, password, phone_no)
-        db.cursor().execute(sql_query)
+        sql_query='INSERT INTO users VALUES (%s, %s, %s, %s, %d)'
+        data = (name, country, username, password, phone_no)
+        # use of data seperately will save from sql injection
+        db.cursor().execute(sql_query, data)
         return True
     except Error as err:
         if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
@@ -35,11 +38,11 @@ def signup(name,country,username,password,phone_no):
 
 @auto_reconnect 
 def login(username, password):
-    sql_query='SELECT Username, Password FROM users where Username = +"' + username + '"'
-    cursor=db.cursor()
-    cursor.execute(sql_query)
+    # use of data seperately will save from sql injection
+    sql_query='SELECT Username, Password FROM users where Username = %s'
+    cursor = db.cursor()
+    cursor.execute(sql_query, (username,))
     for (f1,f2) in cursor:
         if(f2==password):
             return True
     return False
-
