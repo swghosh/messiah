@@ -125,5 +125,22 @@ def get_eq_mag():
 
     return str(predict_eq(lat, long, depth, str(date)))
 
+from . import users
+
+@app.route('/users/signup', methods=['GET'])
+def signup():
+    args = request.args.to_dict()
+    print(args)
+    name = args['name']
+    country = args['country']
+    username = args['username']
+    password = args['password']
+    phone = int(args['phone_number'])
+
+    if users.signup(name, country, username, password, phone):
+        return jsonify({'success': True})
+    else:
+        return jsonify({'success': False})
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)

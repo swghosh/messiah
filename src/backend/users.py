@@ -21,11 +21,13 @@ def auto_reconnect(func):
 
 @auto_reconnect
 def signup(name,country,username,password,phone_no):
+    phone_no = int(phone_no)
     try:
-        sql_query='INSERT INTO users VALUES (%s, %s, %s, %s, %d)'
+        sql_query='INSERT INTO users VALUES (%s, %s, %s, %s, %s)'
         data = (name, country, username, password, phone_no)
         # use of data seperately will save from sql injection
         db.cursor().execute(sql_query, data)
+        db.commit()
         return True
     except Error as err:
         if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
