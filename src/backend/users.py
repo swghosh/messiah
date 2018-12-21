@@ -15,7 +15,7 @@ db = connector.connect(**DB_CREDS)
 
 def auto_reconnect(func):
     global db
-    if db.is_connected == False:
+    if db.is_connected() == False:
         db = connector.connect(**DB_CREDS)
     return func
 
