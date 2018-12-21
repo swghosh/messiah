@@ -58,6 +58,19 @@ def is_valid_username(username):
             return True
     return False
 
+@auto_reconnect
+def get_user_details(username):
+    sql_query = 'SELECT Name, Country, Phone_Number FROM users WHERE username = %s'
+    cursor = db.cursor()
+    cursor.execute(sql_query, (username,))
+    (name, country, phone) = cursor.fetchone()
+    return {
+        'username': username,
+        'name': name,
+        'country': country,
+        'phoneNumber': phone
+    }
+
 import jwt
 from datetime import datetime, timedelta
 
@@ -77,7 +90,14 @@ def generate_access_token(username, password):
 
 def is_valid_access_token(token, username):
     if is_valid_username(username):
-        web_token = jwt.decode(token, SECRET_KEY, audience = username)
-        return True
+        try:
+            web_token = jwt.decode(token, SECRET_KEY, audience = username)
+        # in case signature error
+        # or in case of audience mismatch error
+        # or in case of token expired error
+        except:
+            return False
+        else:
+            return True
     else:
         return False
