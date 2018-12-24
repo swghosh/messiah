@@ -127,18 +127,22 @@ def get_eq_mag():
 
 from . import users
 
-@app.route('/users/signup', methods=['GET'])
+@app.route('/users/signup', methods=['POST'])
 @cross_origin()
 def signup():
-    args = request.args.to_dict()
-    print(args)
-    name = args['name']
-    country = args['country']
-    username = args['username']
-    password = args['password']
-    phone = int(args['phone_number'])
+    try:
+        args = request.get_json()
+        name = args['name']
+        country = args['country']
+        username = args['username']
+        password = args['password']
+        phone = int(args['phone_number'])
 
-    if users.signup(name, country, username, password, phone):
-        return jsonify({'success': True})
-    else:
+        if users.signup(name, country, username, password, phone):
+            return jsonify({'success': True})
+        else:
+            return jsonify({'success': False})
+
+    except:
         return jsonify({'success': False})
+
