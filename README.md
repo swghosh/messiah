@@ -33,6 +33,7 @@ The frontend website is hosted on Heroku at https://messiah-cfd.herokuapp.com/
       * ---> backend <br/>
           * ---> data <br/>
               *  ---> database files (if not being stored remotely)<br/>
+              *  ---> minimal dump of the remote database (containing schema)<br/>
           *  ---> python and flask backend<br/>
           *  ---> _Dockerfile_<br/>
           *  ---> _README.md explaining frontend_ <br/>
@@ -71,6 +72,13 @@ pipenv install [PACKAGE_NAME]
 NOTE: Add `--dev` at the end if the package is required only while developing and not
 using.
 
+Also, set the following system environment variables in order to run the app:
+
+```MYSQL_DATABASE_URL="mysql://<username>:<password>@<hostname>/<database_name>```
+```TOKEN_SECRET_KEY="<any_secret_string>"```
+
+The mysql database must include all data from this [dump](./src/backend/data/database.my.sql).
+
 ### Frontend GUI 
 
 * --> A Landing page
@@ -85,7 +93,7 @@ using.
     * --> Page, predicting the possibility of the natural disaster, judging the location of the user (optional)
     * --> Page having, map interface showing present location of the user (and plausible relief camp placements, and the shortest route to the closest one)
     * --> Page, which shows precautions and tips on the basis of location of the user
-* --> _A static page, displaying the SMS functionality procedure, and set up._
+* --> A static page, displaying the SMS functionality procedure, and set up.
 * --> Scope for further improvements(whatever we couldn't do), github link to the repo, and vote of thanks.
 
 ## Idea Synopsis
@@ -158,16 +166,21 @@ Specifically for the part of prediction, we need to look at the pattern of natur
 - Python 3.6.5 with Pipenv
 - JavaScript
 - HTML5 + CSS3
+- A [MySQL](https://dev.mysql.com/) Database
 - GitHub for hosting
+- [Heroku](https://heroku.com/)
+
+- [Flask](http://flask.pocoo.org/)
+- JSON Web Tokens ([JWT](https://jwt.io)) with [PyJWT](https://pyjwt.readthedocs.io/en/latest/)
+- Maps API (Opensource [LeafletJS](https://leafletjs.com/) with [OpenStreetMap](https://openstreetmap.org) as tile provider)
+- Geocoding API (Opensource [Nominatim](https://nominatim.openstreetmap.org/) API to search from OpenStreetMap data)
+- Overpass API (Opensource API [Overpass](https://wiki.openstreetmap.org/wiki/Overpass_API) to query OpenStreetMap data)
+
 - [Microsoft Azure Data Science Virtual Machine](https://azure.microsoft.com/en-in/services/virtual-machines/data-science-virtual-machines/) for training prediction models
 - Microsoft Azure Cloud for deployment
 - _[Docker](https://www.docker.com/) to deploy as containers by handling microservices_
-- [Flask](http://flask.pocoo.org/)
 - [Elasticsearch](https://www.elastic.co/products/elasticsearch) as a distributed RESTful search engine
 - _[Twilio SMS API](https://www.twilio.com/docs/sms)_
-- Maps API (Opensource [LeafletJS](https://leafletjs.com/) with [OpenStreetMap](https://openstreetmap.org) as tile provider)
-- Geocoding API (Opensource [Nominatim](https://nominatim.openstreetmap.org/) API to search from OpenStreetMap data)
-- SQL Database as a service from [Azure](https://azure.microsoft.com/en-in/services/sql-database/).
 
 ### Final Notes
 
