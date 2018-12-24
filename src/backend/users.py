@@ -1,11 +1,15 @@
 import os
 import json
+from urllib.parse import urlparse
 
-DB_CONFIG_PATH = os.path.join(os.path.dirname(__file__), '..', 'config', 'databaseConfig.json')
-with open(DB_CONFIG_PATH) as config:
-    DB_CREDS = json.loads(
-        config.read()
-    )['db']
+DATABASE_URL = os.environ['MYSQL_DATABASE_URL']
+dbUrl = urlparse(DATABASE_URL)
+DB_CREDS = {
+    'user': dbUrl.username,
+    'password': dbUrl.password,
+    'host': dbUrl.hostname,
+    'database': dbUrl.path[1:]
+}
 
 from mysql import connector
 from mysql.connector import Error
