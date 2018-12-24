@@ -2,6 +2,8 @@ import os
 import json
 from urllib.parse import urlparse
 
+# retreive database credentials
+# from environment variable
 DATABASE_URL = os.environ['MYSQL_DATABASE_URL']
 dbUrl = urlparse(DATABASE_URL)
 DB_CREDS = {
@@ -80,8 +82,11 @@ def get_user_details(username):
 import jwt
 from datetime import datetime, timedelta
 
-SECRET_KEY = 'kwocmessiah18'
 TRESHOLD = 2 # in days
+
+# retreive token secret key
+# from environment variable
+SECRET_KEY = os.environ['TOKEN_SECRET_KEY']
 
 def generate_access_token(username, password):
     if is_valid_user(username, password):

@@ -75,6 +75,7 @@ using.
 Also, set the following system environment variables in order to run the app:
 
 ```MYSQL_DATABASE_URL="mysql://<username>:<password>@<hostname>/<database_name>```
+
 ```TOKEN_SECRET_KEY="<any_secret_string>"```
 
 The mysql database must include all data from this [dump](./src/backend/data/database.my.sql).

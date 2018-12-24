@@ -128,6 +128,7 @@ def get_eq_mag():
 from . import users
 
 @app.route('/users/signup', methods=['GET'])
+@cross_origin()
 def signup():
     args = request.args.to_dict()
     print(args)
@@ -141,6 +142,3 @@ def signup():
         return jsonify({'success': True})
     else:
         return jsonify({'success': False})
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True)
