@@ -1,5 +1,4 @@
 import os
-import json
 from urllib.parse import urlparse
 
 # retreive database credentials
@@ -15,69 +14,8 @@ DB_CREDS = {
 
 from mysql import connector
 from mysql.connector import Error
+from mysql.connector import OperationalError
 from mysql.connector import errorcode
-
-db = connector.connect(**DB_CREDS)
-
-def auto_reconnect(func):
-    global db
-    if db.is_connected() == False:
-        db = connector.connect(**DB_CREDS)
-    return func
-
-@auto_reconnect
-def signup(name,country,username,password,phone_no):
-    phone_no = int(phone_no)
-    try:
-        sql_query='INSERT INTO users VALUES (%s, %s, %s, %s, %s)'
-        data = (name, country, username, password, phone_no)
-        # use of data seperately will save from sql injection
-        db.cursor().execute(sql_query, data)
-        db.commit()
-        return True
-    except Error as err:
-        if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-            print("Something is wrong with your user name or password")
-        elif err.errno == errorcode.ER_BAD_DB_ERROR:
-            print("Database does not exist")
-        else:
-            print(err)
-        return False
-
-@auto_reconnect 
-def is_valid_user(username, password):
-    # use of data seperately will save from sql injection
-    sql_query='SELECT Username, Password FROM users where Username = %s'
-    cursor = db.cursor()
-    cursor.execute(sql_query, (username,))
-    for (f1,f2) in cursor:
-        if(f2==password):
-            return True
-    return False
-
-@auto_reconnect
-def is_valid_username(username):
-    # use of data seperately will save from sql injection
-    sql_query='SELECT Username FROM users where Username = %s'
-    cursor = db.cursor()
-    cursor.execute(sql_query, (username,))
-    for (f1,) in cursor:
-        if f1 == username:
-            return True
-    return False
-
-@auto_reconnect
-def get_user_details(username):
-    sql_query = 'SELECT Name, Country, Phone_Number FROM users WHERE username = %s'
-    cursor = db.cursor()
-    cursor.execute(sql_query, (username,))
-    (name, country, phone) = cursor.fetchone()
-    return {
-        'username': username,
-        'name': name,
-        'country': country,
-        'phoneNumber': phone
-    }
 
 import jwt
 from datetime import datetime, timedelta
@@ -88,27 +26,108 @@ TRESHOLD = 2 # in days
 # from environment variable
 SECRET_KEY = os.environ['TOKEN_SECRET_KEY']
 
-def generate_access_token(username, password):
-    if is_valid_user(username, password):
-        web_token = {
-            'iat': datetime.utcnow(),
-            'aud': username,
-            'exp': datetime.utcnow() + timedelta(days = TRESHOLD)
-        }
-        return jwt.encode(web_token, SECRET_KEY)
-    else:
-        return None
+class DatabaseHandler:
+    db = None
 
-def is_valid_access_token(token, username):
-    if is_valid_username(username):
+    def __init__(self):
+        self.connect()
+    
+    def connect(self):
         try:
-            web_token = jwt.decode(token, SECRET_KEY, audience = username)
-        # in case signature error
-        # or in case of audience mismatch error
-        # or in case of token expired error
+            self.db = connector.connect(**DB_CREDS)
+        except Error as err:
+            if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+                print("Something is wrong with your user name or password")
+            elif err.errno == errorcode.ER_BAD_DB_ERROR:
+                print("Database does not exist")
+            else:
+                print(err)
+    
+    def query(self, sql, params = None):
+        try:
+            cursor = self.db.cursor()
+            cursor.execute(sql, params)
+            self.db.commit()
+        except (AttributeError, OperationalError):
+            self.connect()
+            cursor = self.db.cursor()
+            cursor.execute(sql)
+            self.db.commit()
+        return cursor
+
+    def close(self):
+        self.db.close()
+
+class Users:
+    @staticmethod
+    def is_valid_username(username):
+        sql_query = 'SELECT Username FROM users where Username = %s'
+        db_handle = DatabaseHandler()
+        cursor = db_handle.query(sql_query, (username,))
+        (val1,) = cursor.fetchone()
+        db_handle.close()
+        return val1 == username
+
+    @staticmethod
+    def is_valid_user(username, password):
+        sql_query = 'SELECT Username, Password FROM users WHERE Username = %s'
+        db_handle = DatabaseHandler()
+        cursor = db_handle.query(sql_query, (username, password))
+        (val1, val2) = cursor.fetchone()
+        db_handle.close()
+        return val2 == password
+
+    @staticmethod
+    def signup(name, country, username, password, phone_no):
+        sql_query = 'INSERT INTO users (Name, Country, Username, Password, Phone_Number) VALUES (%s, %s, %s, %s, %s)'
+        db_handle = DatabaseHandler()
+        try:
+            db_handle.query(sql_query, (name, country, username, password, phone_no))
         except:
-            return False
+            flag = False
         else:
-            return True
-    else:
-        return False
+            flag = True
+        finally:
+            db_handle.close()
+        return flag
+
+    @staticmethod
+    def get_user_details(username):
+        sql_query = 'SELECT Name, Country, Phone_Number FROM users WHERE username = %s'
+        db_handle = DatabaseHandler()
+        cursor = db_handle.query(sql_query, (username,))
+        (name, country, phone) = cursor.fetchone()
+        db_handle.close()
+        return {
+            'username': username,
+            'name': name,
+            'country': country,
+            'phone_number': phone
+        }
+
+    @staticmethod
+    def generate_access_token(username, password):
+        if Users.is_valid_user(username, password):
+            web_token = {
+                'iat': datetime.utcnow(),
+                'aud': username,
+                'exp': datetime.utcnow() + timedelta(days = TRESHOLD)
+            }
+            return jwt.encode(web_token, SECRET_KEY)
+        else:
+            return None
+
+    @staticmethod
+    def is_valid_access_token(token, username):
+        if Users.is_valid_username(username):
+            try:
+                web_token = jwt.decode(token, SECRET_KEY, audience = username)
+            # in case of signature error
+            # or in case of audience mismatch error
+            # or in case of token expired error
+            except:
+                return False
+            else:
+                return True
+        else:
+            return False

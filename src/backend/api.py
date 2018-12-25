@@ -125,7 +125,7 @@ def get_eq_mag():
 
     return str(predict_eq(lat, long, depth, str(date)))
 
-from . import users
+from .users import Users
 
 @app.route('/users/signup', methods=['POST'])
 @cross_origin()
@@ -138,7 +138,7 @@ def signup():
         password = args['password']
         phone = int(args['phone_number'])
 
-        if users.signup(name, country, username, password, phone):
+        if Users.signup(name, country, username, password, phone):
             return jsonify({'success': True})
         else:
             return jsonify({'success': False})
