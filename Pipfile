@@ -19,6 +19,7 @@ flask = "*"
 flask-cors = "*"
 mysql-connector-python = "*"
 pyjwt = "*"
+mysqldb = "*"
 
 [requires]
 python_version = "3.6"
