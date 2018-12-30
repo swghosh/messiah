@@ -26,7 +26,7 @@
 		        <li class="active"><a href="api.html">API service</a></li>
 		        <li><a href="sms.html">SMS Services</a></li>
 				<li><a href="scope.html">Further Scope</a></li>
-				<li><a href="Login.html">Login</a></li>
+				<li><a href="Login.html">Login</a></li>	
 			  </ul>
 	    	</div>
   		</nav>
@@ -89,6 +89,18 @@
 						<td> Lattitude, Longitude, Depth, Date(optional) </td>
 						<td> GET </td>
 						<td> Returns magnitude(float64) of possible earthquake in current or given date. </td>
+				</tr>
+				<tr>
+						<td> /signup </td>
+						<td> Name, Country, Username, Password, Phone_Number</td>
+						<td> POST</td>
+						<td> Returns all the personal details of the User.</td>
+				</tr>
+				<tr>
+						<td> /login </td>
+						<td> Username, Password </td>
+						<td> GET, POST</td>
+						<td> Returns the user's details. </td>
 				</tr>
 			</tbody>
 			</table>
