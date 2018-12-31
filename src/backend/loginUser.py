@@ -1,9 +1,10 @@
 from flask import Flask, session, redirect, url_for, escape, request, render_template
+from . import users
 import MySQLdb
 
 app = Flask(__name__)
 
-db = MySQLdb.connect(host="35.200.235.106", user="root", passwd="password77", db="messiah")
+db = MySQLdb.connect(**users.DB_CREDS)
 cur = db.cursor()
 
 @app.route('/')

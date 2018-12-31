@@ -18,7 +18,10 @@ app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
-db = MySQLdb.connect(host="35.200.235.106", user="root", passwd="password77", db="messiah")
+from . import users
+from .users import Users
+
+db = MySQLdb.connect(**users.DB_CREDS)
 cur = db.cursor()
 
 @app.route('/history', methods=['GET'])
@@ -128,7 +131,6 @@ def get_eq_mag():
 
     return str(predict_eq(lat, long, depth, str(date)))
 
-from .users import Users
 
 @app.route('/users/signup', methods=['POST'])
 @cross_origin()
