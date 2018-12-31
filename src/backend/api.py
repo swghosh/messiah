@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #-*- coding: utf-8 -*-
 
-from flask import Flask, request, jsonify, render_template, session, redirect, url_for, excape, abort
+from flask import Flask, request, jsonify, render_template, session, redirect, url_for, escape, abort
 from flask_cors import CORS, cross_origin
 from .db_handler import DBHandler
 from .predict import *
