@@ -17,9 +17,7 @@ reverse-geocode = "*"
 future = "*"
 flask = "*"
 flask-cors = "*"
-mysql-connector-python = "*"
 pyjwt = "*"
-flask-mysql = "*"
 mysqlclient = "*"
 
 [requires]
