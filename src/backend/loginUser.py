@@ -8,8 +8,8 @@ cur = db.cursor()
 
 @app.route('/')
 def index():
-    if 'Username' in session:
-        username_session = escape(session['Username']).capitalize()
+    if 'username' in session:
+        username_session = escape(session['username']).capitalize()
         return render_template('index.html', session_user_name=username_session)
     return redirect(url_for('login'))
 
@@ -17,17 +17,17 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     error = None
-    if 'Username' in session:
+    if 'username' in session:
         return redirect(url_for('index'))
     if request.method == 'POST':
-        username_form  = request.form['Username']
-        password_form  = request.form['Password']
+        username_form  = request.form['username']
+        password_form  = request.form['password']
         cur.execute("SELECT COUNT(1) FROM users WHERE Name = %s;", [username_form]) # CHECKS IF USERNAME EXSIST
         if cur.fetchone()[0]:
             cur.execute("SELECT password FROM users WHERE Name = %s;", [username_form]) # FETCH THE HASHED PASSWORD
             for row in cur.fetchall():
                 if password_form.hexdigest() == row[0]:
-                    session['Username'] = request.form['Username']
+                    session['username'] = request.form['username']
                     return redirect(url_for('index'))
                 else:
                     error = "Invalid Credential"
@@ -38,7 +38,7 @@ def login():
 
 @app.route('/logout')
 def logout():
-    session.pop('Username', None)
+    session.pop('username', None)
     return redirect(url_for('index'))
 
 app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
