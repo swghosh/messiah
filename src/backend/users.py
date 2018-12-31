@@ -7,15 +7,14 @@ DATABASE_URL = os.environ['MYSQL_DATABASE_URL']
 dbUrl = urlparse(DATABASE_URL)
 DB_CREDS = {
     'user': dbUrl.username,
-    'password': dbUrl.password,
+    'passwd': dbUrl.password,
     'host': dbUrl.hostname,
-    'database': dbUrl.path[1:]
+    'db': dbUrl.path[1:]
 }
 
-from mysql import connector
-from mysql.connector import Error
-from mysql.connector import OperationalError
-from mysql.connector import errorcode
+import MySQLdb
+from MySQLdb import Error
+from MySQLdb import OperationalError
 
 import jwt
 from datetime import datetime, timedelta
@@ -34,14 +33,9 @@ class DatabaseHandler:
     
     def connect(self):
         try:
-            self.db = connector.connect(**DB_CREDS)
+            self.db = MySQLdb.connect(**DB_CREDS)
         except Error as err:
-            if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-                print("Something is wrong with your user name or password")
-            elif err.errno == errorcode.ER_BAD_DB_ERROR:
-                print("Database does not exist")
-            else:
-                print(err)
+            print(err)
     
     def query(self, sql, params = None):
         try:
